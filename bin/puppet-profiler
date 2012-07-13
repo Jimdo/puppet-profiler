@@ -17,12 +17,22 @@ Basic Command Line Usage:
 Options:
 HELP
 
-options = {:number => 10}
+options = {}
+options[:count] = 10
+options[:environment] = 'production'
+options[:run] = false
+
 opts = OptionParser.new do |opts|
   opts.banner = help
 
-  opts.on('-n' '--number NUMBER', 'Number of results to return') do |v|
-    options[:number] = v.to_i
+  opts.on('-c','--count NUMBER', 'Count of results to return') do |v|
+    options[:count] = v.to_i
+  end
+  opts.on('-e','--environment STRING', 'environment we run puppet for') do |v|
+    options[:environment] = v
+  end
+  opts.on('-r','--run', 'run without --noop') do |v|
+    options[:run] = true
   end
 end
 
@@ -34,4 +44,4 @@ rescue OptionParser::InvalidOption
   exit 1
 end
 
-PuppetProfiler.run(options[:number])
+PuppetProfiler.run(options[:count], options[:environment], options[:run])

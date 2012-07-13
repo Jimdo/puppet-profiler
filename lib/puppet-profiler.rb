@@ -1,6 +1,13 @@
 class PuppetProfiler
-  def self.run(num_res)
-    output = `puppet agent --test --evaltrace --color=false`.split("\n")
+  def self.run(num_res, environment, really_run)
+    command = []
+    command << 'puppet agent --test --evaltrace --color=false'
+    command << "--environment=#{environment}"
+    if not really_run
+        command << '--noop'
+    end
+
+    output = `#{command.join(' ')}`.split("\n")
 
     times = []
     resources = output.select { |line| 
