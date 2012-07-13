@@ -22,6 +22,7 @@ options[:types] = 0
 options[:number] = 10
 options[:environment] = 'production'
 options[:run] = false
+options[:cummulative] = false
 
 opts = OptionParser.new do |opts|
   opts.banner = help
@@ -38,6 +39,9 @@ opts = OptionParser.new do |opts|
   opts.on('-r','--run', 'run without --noop') do |v|
     options[:run] = true
   end
+  opts.on('-r','--cummulative', 'cummulative numbers') do |v|
+    options[:cummulative] = true
+  end
 end
 
 begin
@@ -48,4 +52,4 @@ rescue OptionParser::InvalidOption
   exit 1
 end
 
-PuppetProfiler.run(options[:number], options[:types], options[:environment], options[:run])
+PuppetProfiler.run(options[:number], options[:types], options[:environment], options[:run], options[:cummulative])

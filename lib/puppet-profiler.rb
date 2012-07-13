@@ -1,5 +1,22 @@
 class PuppetProfiler
-  def self.run(num_res, num_types, environment, really_run)
+  def self.get_tree(line, tree, time)
+    if line.length == 0 
+      return tree
+    end
+    while line =~ /^(\/[^\]]+\[[^\]]+\]){1}/
+	parent = $1
+        parent = parent[1..-1]
+        if not tree.has_key?(parent)
+	  tree[parent] = [0, 0]
+        end
+	item = tree[parent]
+        tree[parent] = [item[0] + time, item[1] + 1]
+	line = line[(parent.length + 1)..-1]
+    end
+    return tree
+  end
+	
+  def self.run(num_res, num_types, environment, really_run, cummulative)
     command = []
     command << 'puppet agent --test --evaltrace --color=false'
     command << "--environment=#{environment}"
@@ -11,6 +28,7 @@ class PuppetProfiler
 
     times = []
     times_by_type = {}
+    path = {}
     resources = output.select { |line| 
       line =~ /.+: E?valuated in [\d\.]+ seconds$/
     }.each { |line|
@@ -18,6 +36,7 @@ class PuppetProfiler
       if eval_line =~ / E?valuated in ([\d\.]+) seconds$/
         time = $1.to_f
       end
+      path = get_tree(res_line, time)
       junk, junk, res_line = res_line.partition(':')
       if res_line =~ /.*([A-Z][^\[]+)\[(.+?)\]$/
         type = $1
@@ -36,7 +55,10 @@ class PuppetProfiler
 
     # need array for sorting, hashes are not sortable
     times_by_type_array = []
-    times_by_type.each {|key, value| times_by_type_array << [key, value[0], value[1]] }
+    if cummulative
+      times = []
+      path.each {|key, value| times << [key, value[0], value[1]] }
+    end
 
     if num_res > 0
       puts "Top #{num_res} Puppet resources by runtime"
@@ -53,7 +75,7 @@ class PuppetProfiler
       puts "=================================="
       puts ""
       times_by_type_array.sort { |a, b| a[1] <=> b[1] }.reverse[0..num_types].each { |item|
-        puts "#{format('%4s', item[1])}s - #{item[0]} (calls #{item[2]})"
+        puts "#{format('%4s', item[1])}s - #{item[0]} (calls #{item[2]}, #{format('%4s', item[1]/item[2])}s/call)"
       }
     end
   end
