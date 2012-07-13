@@ -10,6 +10,7 @@ class PuppetProfiler
     output = `#{command.join(' ')}`.split("\n")
 
     times = []
+    times_by_type = {}
     resources = output.select { |line| 
       line =~ /.+: E?valuated in [\d\.]+ seconds$/
     }.each { |line|
@@ -23,13 +24,29 @@ class PuppetProfiler
         title = $2
       end
       times << [type, title, time]
+      if times_by_type.has_key?(type)
+        times_by_type[type] += time
+      else
+        times_by_type[type] = time
+      end
     }
+
+    # need array for sorting, hashes are not sortable
+    times_by_type_array = []
+    times_by_type.each {|key, value| times_by_type_array << [key, value] }
 
     puts "Top #{num_res} Puppet resources by runtime"
     puts "=================================="
     puts ""
     times.sort { |a, b| a[2] <=> b[2] }.reverse[0..num_res].each { |item|
       puts "#{format('%4s', item[2])}s - #{item[0]}[#{item[1]}]"
+    }
+    puts ""
+    puts "Top #{num_res} Puppet resources types by runtime"
+    puts "=================================="
+    puts ""
+    times_by_type_array.sort { |a, b| a[1] <=> b[1] }.reverse[0..num_res].each { |item|
+      puts "#{format('%4s', item[1])}s - #{item[0]}"
     }
   end
 end
