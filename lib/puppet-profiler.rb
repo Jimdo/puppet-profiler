@@ -36,8 +36,8 @@ class PuppetProfiler
       if eval_line =~ / E?valuated in ([\d\.]+) seconds$/
         time = $1.to_f
       end
-      path = get_tree(res_line, path, time)
       junk, junk, res_line = res_line.partition(':')
+      path = get_tree(res_line, path, time)
       if res_line =~ /.*([A-Z][^\[]+)\[(.+?)\]$/
         type = $1
         title = $2
