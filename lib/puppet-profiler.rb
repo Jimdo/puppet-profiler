@@ -25,15 +25,18 @@ class PuppetProfiler
       end
       times << [type, title, time]
       if times_by_type.has_key?(type)
-        times_by_type[type] += time
+        item = times_by_type[type]
+        item[0] += time
+        item[1] += 1
       else
-        times_by_type[type] = time
+        item = [time, 1]
       end
+      times_by_type[type] = item
     }
 
     # need array for sorting, hashes are not sortable
     times_by_type_array = []
-    times_by_type.each {|key, value| times_by_type_array << [key, value] }
+    times_by_type.each {|key, value| times_by_type_array << [key, value[0], value[1]] }
 
     puts "Top #{num_res} Puppet resources by runtime"
     puts "=================================="
@@ -46,7 +49,7 @@ class PuppetProfiler
     puts "=================================="
     puts ""
     times_by_type_array.sort { |a, b| a[1] <=> b[1] }.reverse[0..num_res].each { |item|
-      puts "#{format('%4s', item[1])}s - #{item[0]}"
+      puts "#{format('%4s', item[1])}s - #{item[0]} (calls #{item[2]})"
     }
   end
 end
