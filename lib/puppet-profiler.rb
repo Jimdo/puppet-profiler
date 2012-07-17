@@ -53,12 +53,12 @@ class PuppetProfiler
       times_by_type[type] = item
     }
 
-    if cummulative
-      times = []
-      path.each {|key, value| times << [key, value[0], value[1]] }
-    end
-
     if num_res > 0
+      if cummulative
+	times = []
+	path.each {|key, value| times << [key, value[0], value[1]] }
+      end
+
       puts "Top #{num_res} Puppet resources by runtime"
       puts "=================================="
       puts ""
