@@ -25,7 +25,10 @@ class PuppetProfiler
     end
 
     output = `#{command.join(' ')}`.split("\n")
+    self.eval(output, num_res, num_types, cummulative)
+  end
 
+  def self.eval(output, num_res, num_types, cummulative)
     times = []
     times_by_type = {}
     path = {}
