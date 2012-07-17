@@ -53,8 +53,6 @@ class PuppetProfiler
       times_by_type[type] = item
     }
 
-    # need array for sorting, hashes are not sortable
-    times_by_type_array = []
     if cummulative
       times = []
       path.each {|key, value| times << [key, value[0], value[1]] }
@@ -70,6 +68,8 @@ class PuppetProfiler
     end
 
     if num_types > 0
+      # need array for sorting, hashes are not sortable
+      times_by_type_array = []
       puts ""
       puts "Top #{num_types} Puppet resources types by runtime"
       puts "=================================="
